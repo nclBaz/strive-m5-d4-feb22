@@ -4,6 +4,7 @@ import listEndpoints from "express-list-endpoints"
 import cors from "cors"
 import usersRouter from "./apis/users/index.js"
 import booksRouter from "./apis/books/index.js"
+import filesRouter from "./apis/files/index.js"
 import { genericErrorHandler, notFoundErrorHandler, badRequestErrorHandler, unauthorizedErrorHandler } from "./errorHandlers.js"
 
 const server = express()
@@ -30,6 +31,7 @@ server.use(express.json()) // GLOBAL MIDDLEWARE if you don't add this BEFORE the
 
 server.use("/users", anotherMiddleware, usersRouter)
 server.use("/books", booksRouter)
+server.use("/files", filesRouter)
 
 // ************************ ERROR HANDLERS **********************
 
