@@ -11,31 +11,25 @@
 */
 
 import express from "express"
-import fs from "fs" // CORE MODULE (no need to be installed!)
-import { fileURLToPath } from "url" // CORE MODULE
-import { dirname, join } from "path" // CORE MODULE
 import uniqid from "uniqid"
 import createError from "http-errors"
 
 import { checkBookSchema, checkValidationResult } from "./validation.js"
 
+import { getBooks, writeBooks } from "../../lib/fs-tools.js"
+
 const booksRouter = express.Router()
 
-const booksJSONPath = join(dirname(fileURLToPath(import.meta.url)), "books.json") // C:\Strive\FullStack\2022\Feb22\M5\strive-m5-d3-feb22\src\apis\books\
-
-const getBooks = () => JSON.parse(fs.readFileSync(booksJSONPath))
-const writeBooks = booksArray => fs.writeFileSync(booksJSONPath, JSON.stringify(booksArray))
-
 // 1.
-booksRouter.post("/", checkBookSchema, checkValidationResult, (req, res, next) => {
+booksRouter.post("/", checkBookSchema, checkValidationResult, async (req, res, next) => {
   try {
     const newBook = { ...req.body, createdAt: new Date(), id: uniqid() }
 
-    const books = getBooks()
+    const books = await getBooks()
 
     books.push(newBook)
 
-    writeBooks(books)
+    await writeBooks(books)
 
     res.status(201).send({ id: newBook.id })
   } catch (error) {
@@ -44,10 +38,10 @@ booksRouter.post("/", checkBookSchema, checkValidationResult, (req, res, next) =
 })
 
 // 2.
-booksRouter.get("/", (req, res, next) => {
+booksRouter.get("/", async (req, res, next) => {
   try {
     // throw new Error("Kabooooooooooooooooooooom!")
-    const books = getBooks()
+    const books = await getBooks()
     if (req.query && req.query.category) {
       const filteredBooks = books.filter(book => book.category === req.query.category)
       res.send(filteredBooks)
@@ -60,9 +54,9 @@ booksRouter.get("/", (req, res, next) => {
 })
 
 // 3.
-booksRouter.get("/:bookId", (req, res, next) => {
+booksRouter.get("/:bookId", async (req, res, next) => {
   try {
-    const books = getBooks()
+    const books = await getBooks()
 
     const foundBook = books.find(book => book.id === req.params.bookId)
     if (foundBook) {
@@ -76,9 +70,9 @@ booksRouter.get("/:bookId", (req, res, next) => {
 })
 
 // 4.
-booksRouter.put("/:bookId", (req, res, next) => {
+booksRouter.put("/:bookId", async (req, res, next) => {
   try {
-    const books = getBooks()
+    const books = await getBooks()
 
     const index = books.findIndex(book => book.id === req.params.bookId)
 
@@ -89,7 +83,7 @@ booksRouter.put("/:bookId", (req, res, next) => {
 
       books[index] = updatedBook
 
-      writeBooks(books)
+      await writeBooks(books)
 
       res.send(updatedBook)
     } else {
@@ -101,13 +95,13 @@ booksRouter.put("/:bookId", (req, res, next) => {
 })
 
 // 5.
-booksRouter.delete("/:bookId", (req, res, next) => {
+booksRouter.delete("/:bookId", async (req, res, next) => {
   try {
-    const books = getBooks()
+    const books = await getBooks()
 
     const remainingBooks = books.filter(book => book.id !== req.params.bookId)
 
-    writeBooks(remainingBooks)
+    await writeBooks(remainingBooks)
 
     res.status(204).send()
   } catch (error) {

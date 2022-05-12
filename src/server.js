@@ -33,10 +33,10 @@ server.use("/books", booksRouter)
 
 // ************************ ERROR HANDLERS **********************
 
-server.use(badRequestErrorHandler)
-server.use(unauthorizedErrorHandler)
-server.use(notFoundErrorHandler)
-server.use(genericErrorHandler)
+server.use(badRequestErrorHandler) // 400
+server.use(unauthorizedErrorHandler) // 401
+server.use(notFoundErrorHandler) // 404
+server.use(genericErrorHandler) // 500
 
 server.listen(port, () => {
   console.table(listEndpoints(server))
