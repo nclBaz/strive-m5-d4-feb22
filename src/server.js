@@ -2,6 +2,7 @@
 import express from "express" // <-- NEW IMPORT SYNTAX (remember to add type: "module" to package.json to use it!)
 import listEndpoints from "express-list-endpoints"
 import cors from "cors"
+import { join } from "path"
 import usersRouter from "./apis/users/index.js"
 import booksRouter from "./apis/books/index.js"
 import filesRouter from "./apis/files/index.js"
@@ -10,6 +11,7 @@ import { genericErrorHandler, notFoundErrorHandler, badRequestErrorHandler, unau
 const server = express()
 
 const port = 3001
+const publicFolderPath = join(process.cwd(), "./public")
 
 // *********************** MIDDLEWARES ***************************
 
@@ -23,6 +25,7 @@ const anotherMiddleware = (req, res, next) => {
   next()
 }
 
+server.use(express.static(publicFolderPath))
 server.use(cors()) // GLOBAL MIDDLEWARE to connect FE and BE without errors in the browser
 server.use(loggerMiddleware) // GLOBAL MIDDLEWARE
 server.use(express.json()) // GLOBAL MIDDLEWARE if you don't add this BEFORE the endpoints all requests' bodies will be UNDEFINED
